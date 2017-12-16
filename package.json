@@ -1,0 +1,22 @@
+{
+  "name": "j-balance",
+  "version": "0.0.1",
+  "description": "",
+  "main": "src/client.js",
+  "scripts": {
+    "test": "npm run jest",
+    "jest": "jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "axios-mock-adapter": "^1.10.0",
+    "chai": "^3.5.0",
+    "jest": "^19.0.2",
+    "mocha": "^2.4.5"
+  },
+  "dependencies": {
+    "axios": "^0.17.1",
+    "lodash": "^4.17.4"
+  }
+}

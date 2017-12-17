@@ -36,23 +36,29 @@ const eurekaResponseInterceptor = [
 ];
 
 function getDiscovery(config) {
+    const discoveryConfig = Object.assign({
+        resolver: getResolverForDiscovery(config)
+    }, config.discovery, config.client);
+
+    return new Discovery(discoveryConfig);
+}
+
+function getResolverForDiscovery(config) {
+    // Create fake discovery service for getting hosts of our discovery
     const discoveryHostGetter = {
         getHosts: () => {
-            return Promise.resolve(config.hosts)
+            return Promise.resolve(config.discovery.hosts)
         }
     };
-    const discoveryResolver = new Client({ discovery: discoveryHostGetter });
 
+    // Create client for getting info from discovery
+    const discoveryResolver = new Client({ discovery: discoveryHostGetter });
     discoveryResolver.use({
         request: eurekaRequestInterceptor,
         response: eurekaResponseInterceptor
     });
 
-    const discoveryConfig = Object.assign({
-        resolver: discoveryResolver.getService('eureks')
-    }, config.discovery, config.client);
-
-    return new Discovery(discoveryConfig);
+    return discoveryResolver.getService('eureks');
 }
 
 module.exports = function getClient(clintConfig) {

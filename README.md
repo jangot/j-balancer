@@ -1,7 +1,7 @@
 # j-balancer
 
 ```js
-const client = require('./example/eureka');
+const getClient = require('./example/eureka');
 
 getClient({
     discovery: {
@@ -9,6 +9,7 @@ getClient({
         hosts: ['http://localhost:7777']
     }
 })
+    .getService('PROJECTS-API')
     .getService('PROJECTS-API')
     .get('/projects')
     .then((res) => {

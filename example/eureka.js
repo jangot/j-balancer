@@ -50,7 +50,7 @@ function getDiscovery(config) {
 
     const discoveryConfig = Object.assign({
         resolver: discoveryResolver.getService('eureks')
-    }, config);
+    }, config.discovery, config.client);
 
     return new Discovery(discoveryConfig);
 }
@@ -58,7 +58,7 @@ function getDiscovery(config) {
 module.exports = function getClient(clintConfig) {
     clintConfig = defaultsDeep(clintConfig, defaultConfig);
 
-    const discovery = getDiscovery(clintConfig.discovery);
+    const discovery = getDiscovery(clintConfig);
 
     const config = Object.assign(clintConfig.client, {
         discovery

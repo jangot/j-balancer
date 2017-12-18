@@ -2,7 +2,7 @@
   "name": "j-balance",
   "version": "0.0.1",
   "description": "",
-  "main": "src/client.js",
+  "main": "index.js",
   "scripts": {
     "test": "npm run jest",
     "jest": "jest"

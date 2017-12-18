@@ -18,7 +18,7 @@ module.exports = class Discovery {
 
     getHosts(name) {
         if (!name) {
-            throw new Error('Getting service without name');
+            throw new Error('Discovery: Getting service without name');
         }
 
         return this
@@ -32,7 +32,7 @@ module.exports = class Discovery {
         this.config = Object.assign({}, DEFAULT_CONFIG, config);
 
         if (!this.config.resolver) {
-            throw Error('Resolver was not set');
+            throw Error('Discovery: Resolver was not set');
         }
 
         return this;
@@ -53,7 +53,7 @@ module.exports = class Discovery {
 
     getLoadedHosts(name) {
         if (!this.hosts[name]) {
-            throw new Error('Getting unavailable service')
+            throw new Error('Discovery: Getting unavailable service')
         }
 
         const result = this.getCorrectCountHosts(this.hosts[name]);

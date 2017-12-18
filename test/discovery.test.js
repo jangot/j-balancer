@@ -43,7 +43,7 @@ describe('Discovery', () => {
         expect(err.message).toMatch(/Getting service without name/);
     });
 
-    it('getHosts returns hosts if name is in resolver result', async () => {
+    it('getHosts returns hosts if resolver result has the name', async () => {
         const SERVICE_NAME = 'some-service';
         const SERVICE_HOST = 'some-service.com';
         const config = Object.assign({}, testConfig, {

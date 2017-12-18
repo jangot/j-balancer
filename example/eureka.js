@@ -44,14 +44,14 @@ function getDiscovery(config) {
 }
 
 function getResolverForDiscovery(config) {
-    // Create fake discovery service for getting hosts of our discovery
+    // Create fake discovery service for getting hosts of our discovery from config
     const discoveryHostGetter = {
         getHosts: () => {
             return Promise.resolve(config.discovery.hosts)
         }
     };
 
-    // Create client for getting info from discovery
+    // Create client for getting info from discovery (resolver)
     const discoveryResolver = new Client({ discovery: discoveryHostGetter });
     discoveryResolver.use({
         request: eurekaRequestInterceptor,

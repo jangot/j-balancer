@@ -14,7 +14,7 @@ module.exports = class Client {
     constructor(config) {
         this.config = Object.assign({}, DEFAULT_CONFIG, config);
         if (!this.config.discovery) {
-            throw Error('Discovery getter is empty');
+            throw Error('Client: Discovery getter is empty');
         }
         this.interceptors = []
     }
@@ -61,7 +61,7 @@ module.exports = class Client {
             .getHosts(name)
             .then((hosts = []) => {
                 if (hosts.length === 0) {
-                    throw new Error(`There are't servers ${name}`);
+                    throw new Error(`Client: There are't servers ${name}`);
                 }
                 const originUrl = config.url;
                 config.discovery = {

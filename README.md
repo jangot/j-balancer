@@ -10,7 +10,6 @@ getClient({
     }
 })
     .getService('PROJECTS-API')
-    .getService('PROJECTS-API')
     .get('/projects')
     .then((res) => {
         console.log(`RESULT`);

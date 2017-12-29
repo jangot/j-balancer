@@ -1,4 +1,6 @@
 const clone = require('lodash/clone');
+const debug = require('./debug');
+
 const DEFAULT_CONFIG = {
     resolver: null,
     url: '/',
@@ -9,6 +11,8 @@ const DEFAULT_CONFIG = {
 module.exports = class Discovery {
 
     constructor(config) {
+        debug('Discovery', 'creation', config);
+
         this.config = null;
         this.resolverResult = null;
         this.lasUpdate = null;
@@ -31,6 +35,7 @@ module.exports = class Discovery {
     initConfig(config) {
         this.config = Object.assign({}, DEFAULT_CONFIG, config);
 
+        debug('Discovery', 'init', this.config);
         if (!this.config.resolver) {
             throw Error('Discovery: Resolver was not set');
         }
@@ -40,10 +45,12 @@ module.exports = class Discovery {
 
     loadingHostsIfExpired() {
         if (this.isExpired() || !this.resolverResult) {
+            debug('Discovery', 'hosts expired');
             this.lasUpdate = Date.now();
             this.resolverResult = this.config.resolver
                 .get(this.config.url)
                 .then((hosts) => {
+                    debug('Discovery', 'resolve hosts', hosts);
                     this.hosts = hosts;
                 });
         }

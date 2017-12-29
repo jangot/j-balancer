@@ -1,5 +1,6 @@
 const axios = require('axios');
 const clone = require('lodash/clone');
+const debug = require('./debug');
 
 const DEFAULT_CONFIG = {
     discovery: null,
@@ -12,6 +13,7 @@ const noopInterceptor = [
 
 module.exports = class Client {
     constructor(config) {
+        debug('Client', 'init config', config);
         this.config = Object.assign({}, DEFAULT_CONFIG, config);
         if (!this.config.discovery) {
             throw Error('Client: Discovery getter is empty');
@@ -19,6 +21,7 @@ module.exports = class Client {
         this.interceptors = []
     }
     getService(name) {
+        debug('Client', 'get service', name);
         let instance = axios.create();
 
         this.interceptors.forEach((interceptor) => {
@@ -51,6 +54,7 @@ module.exports = class Client {
     }
 
     _updateRequestConfig(config, name) {
+        debug('Client', 'update request config', config, name);
         if (config.discovery) {
             config.discovery.originUrl = config.url;
             config.url = config.discovery.hosts.shift() + config.discovery.originUrl;
@@ -60,6 +64,7 @@ module.exports = class Client {
         return this.config.discovery
             .getHosts(name)
             .then((hosts = []) => {
+                debug('Client', 'discovery returns hosts', hosts);
                 if (hosts.length === 0) {
                     throw new Error(`Client: There are't servers ${name}`);
                 }
@@ -75,6 +80,7 @@ module.exports = class Client {
     }
 
     _updateResponseError(error, instance) {
+        debug('Client', 'update response error', error);
         const { config = {} } = error;
 
         if (config.discovery && config.discovery.hosts.length > 0) {

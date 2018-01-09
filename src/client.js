@@ -4,6 +4,7 @@ const debug = require('./debug');
 
 const DEFAULT_CONFIG = {
     discovery: null,
+    needRetry: () => true
 };
 
 const noopInterceptor = [
@@ -18,7 +19,7 @@ module.exports = class Client {
         if (!this.config.discovery) {
             throw Error('Client: Discovery getter is empty');
         }
-        this.interceptors = []
+        this.interceptors = [];
     }
     getService(name) {
         debug('Client', 'get service', name);
@@ -40,7 +41,7 @@ module.exports = class Client {
         return instance;
     }
 
-    use (interceptor) {
+    use(interceptor) {
         if (!interceptor.request) {
             interceptor.request = clone(noopInterceptor);
         }
@@ -83,7 +84,7 @@ module.exports = class Client {
         debug('Client', 'update response error', error);
         const { config = {} } = error;
 
-        if (config.discovery && config.discovery.hosts.length > 0) {
+        if (config.discovery && config.discovery.hosts.length > 0 && this.config.needRetry(error)) {
             config.url = config.discovery.originUrl;
 
             return instance(config);

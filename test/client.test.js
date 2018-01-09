@@ -47,7 +47,7 @@ describe('Client', () => {
         mock.onGet(HOST1 + '/').reply(200, { value: 'first' });
         mock.onGet(HOST2 + '/').reply(200, { value: 'second' });
 
-        const discovery = getDiscovery([HOST1, HOST2], [HOST2, HOST1]);
+        const discovery = getDiscovery([HOST1, HOST1], [HOST2, HOST1]);
         const client = new Client({ discovery });
         await client.getService('some-service').get('/');
 
@@ -64,5 +64,22 @@ describe('Client', () => {
         }
 
         expect(err.message).toMatch(/There are\'t servers/);
+    });
+
+    it('Fail first request if `needRetry` config param', async () => {
+        mock.onGet(HOST1 + '/').reply(500, { value: 'first' });
+        mock.onGet(HOST2 + '/').reply(200, { value: 'second' });
+
+        const discovery = getDiscovery([HOST1, HOST2]);
+        const client = new Client({ discovery, needRetry: () => false });
+
+        let err;
+        try {
+            await client.getService('some-service').get('/');
+        } catch (e) {
+            err = e;
+        }
+
+        expect(err.response.status).toBe(500);
     });
 });

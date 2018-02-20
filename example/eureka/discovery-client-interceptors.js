@@ -13,7 +13,7 @@ const eurekaResponseInterceptor = [
         const applications = get(data, 'data.applications.application', []);
         return applications.reduce((result, item) => {
             result[item.name] = item.instance.map((item) => {
-                return `http://${item.hostName}:${item.port.$}`
+                return `http://${item.hostName}/${item.vipAddress}`;
             });
             return result;
         }, {});

@@ -30,11 +30,11 @@ function getDiscovery(config) {
 }
 
 function getResolverForDiscovery(config) {
-    const discoveryForEurekaClient = getDiscoveryForEurekaClient(config.discovery.hosts);
+    const { discovery } = config;
 
+    const discoveryForEurekaClient = getDiscoveryForEurekaClient(discovery.hosts);
     const discoveryResolver = new Client({ discovery: discoveryForEurekaClient });
-
-    const discoveryClientInterceptors = getDiscoveryClientInterceptors(config.applicationsMap);
+    const discoveryClientInterceptors = getDiscoveryClientInterceptors(discovery.applicationsMap);
 
     discoveryResolver.use(discoveryClientInterceptors);
 

@@ -3,14 +3,17 @@ const defaultsDeep = require('lodash/defaultsDeep');
 const Discovery = require('../src/discovery');
 const Client = require('../src/client');
 
-const discoveryClientInterceptors = require('./eureka/discovery-client-interceptors');
+const getDiscoveryClientInterceptors = require('./eureka/get-discovery-client-interceptors');
 const getDiscoveryForEurekaClient = require('./eureka/get-discovery-for-eureka-client');
 
 const defaultConfig = {
     discovery:{
         hosts: [
             'http://localhost:7777'
-        ]
+        ],
+        applicationsMap: (application) => {
+            return `http://${application.hostName}:${application.port.$}`;
+        },
     },
     client: {
         retries: 3,
@@ -30,6 +33,9 @@ function getResolverForDiscovery(config) {
     const discoveryForEurekaClient = getDiscoveryForEurekaClient(config.discovery.hosts);
 
     const discoveryResolver = new Client({ discovery: discoveryForEurekaClient });
+
+    const discoveryClientInterceptors = getDiscoveryClientInterceptors(config.applicationsMap);
+
     discoveryResolver.use(discoveryClientInterceptors);
 
     return discoveryResolver.getService('eureks');

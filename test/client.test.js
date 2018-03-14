@@ -1,6 +1,7 @@
 const axios = require('axios');
 const MockAdapter = require('axios-mock-adapter');
 const Client = require('../src/client');
+const DiscoveryError = require('../src/discoveryError');
 
 const mock = new MockAdapter(axios);
 
@@ -82,4 +83,21 @@ describe('Client', () => {
 
         expect(err.response.status).toBe(500);
     });
+
+    it('Has discovery error if getting host failed', async () => {
+        const discovery = {
+            getHosts: () => {
+                return Promise.reject();
+            }
+        };
+        const client = new Client({ discovery });
+        let err;
+        try {
+            await client.getService('some-service').get('/');
+        } catch (e) {
+            err = e;
+        }
+
+        expect(err).toBeInstanceOf(DiscoveryError);
+    })
 });

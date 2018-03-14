@@ -1,6 +1,7 @@
 const axios = require('axios');
 const clone = require('lodash/clone');
 const debug = require('./debug');
+const DiscoveryError = require('./discoveryError');
 
 const DEFAULT_CONFIG = {
     discovery: null,
@@ -11,6 +12,9 @@ const noopInterceptor = [
     (data) => data,
     (error) => Promise.reject(error)
 ];
+
+
+
 
 module.exports = class Client {
     constructor(config) {
@@ -64,6 +68,12 @@ module.exports = class Client {
         }
         return this.config.discovery
             .getHosts(name)
+            .catch((err) => {
+                const error = new DiscoveryError('Getting hosts failed');
+                error.setParrentError(err);
+
+                throw error;
+            })
             .then((hosts = []) => {
                 debug('Client', 'discovery returns hosts', hosts);
                 if (hosts.length === 0) {

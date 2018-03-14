@@ -8,20 +8,19 @@ const getDiscoveryForEurekaClient = require('./eureka/get-discovery-for-eureka-c
 
 const defaultConfig = {
     discovery:{
-        hosts: [
-            'http://localhost:7777'
-        ],
-        applicationsMap: (application) => {
-            return `http://${application.hostName}:${application.port.$}`;
-        },
-    },
-    client: {
+        hosts: null,
         retries: 3,
         expired: 60000,
-    }
+        applicationsMap: (application) => {
+            return `http://${application.hostName}:${application.port.$}`;
+        }
+    },
+    client: {}
+
 };
 
 function getDiscovery(config) {
+
     const discoveryConfig = Object.assign({
         resolver: getResolverForDiscovery(config)
     }, config.discovery, config.client);
@@ -30,11 +29,10 @@ function getDiscovery(config) {
 }
 
 function getResolverForDiscovery(config) {
-    const { discovery } = config;
 
-    const discoveryForEurekaClient = getDiscoveryForEurekaClient(discovery.hosts);
+    const discoveryForEurekaClient = getDiscoveryForEurekaClient(config.hosts);
     const discoveryResolver = new Client({ discovery: discoveryForEurekaClient });
-    const discoveryClientInterceptors = getDiscoveryClientInterceptors(discovery.applicationsMap);
+    const discoveryClientInterceptors = getDiscoveryClientInterceptors(config.applicationsMap);
 
     discoveryResolver.use(discoveryClientInterceptors);
 
@@ -44,9 +42,13 @@ function getResolverForDiscovery(config) {
 module.exports = function getClient(clintConfig) {
     clintConfig = defaultsDeep(clintConfig, defaultConfig);
 
-    const discovery = getDiscovery(clintConfig);
+    const discoveryConfig = clintConfig.discovery;
+    if (!discoveryConfig.hosts) {
+        throw Error('"discovery.hosts" is required params')
+    }
+    const discovery = getDiscovery(discoveryConfig);
 
-    const config = Object.assign(clintConfig.client, {
+    const config = Object.assign({}, clintConfig.client, {
         discovery
     });
 

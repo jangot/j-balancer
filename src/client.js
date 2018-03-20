@@ -70,7 +70,7 @@ module.exports = class Client {
             .getHosts(name)
             .catch((err) => {
                 const error = new DiscoveryError('Getting hosts failed');
-                error.setParrentError(err);
+                error.setParentError(err);
 
                 throw error;
             })

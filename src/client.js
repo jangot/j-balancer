@@ -69,10 +69,7 @@ module.exports = class Client {
         return this.config.discovery
             .getHosts(name)
             .catch((err) => {
-                const error = new DiscoveryError('Getting hosts failed');
-                error.setParentError(err);
-
-                throw error;
+                throw new DiscoveryError('Getting hosts failed', err);
             })
             .then((hosts = []) => {
                 debug('Client', 'discovery returns hosts', hosts);

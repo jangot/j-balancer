@@ -1,10 +1,8 @@
 
 class DiscoveryError extends Error {
-    constructor(message) {
+    constructor(message, parent) {
         super(message);
-    }
-    setParentError(error) {
-        this.parrentError = error;
+        this.parrentError = parent;
     }
 }
 

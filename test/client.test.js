@@ -1,7 +1,6 @@
 const axios = require('axios');
 const MockAdapter = require('axios-mock-adapter');
 const Client = require('../src/client');
-const DiscoveryError = require('../src/discoveryError');
 
 const mock = new MockAdapter(axios);
 

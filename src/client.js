@@ -13,8 +13,6 @@ const noopInterceptor = [
 ];
 
 
-
-
 module.exports = class Client {
     constructor(config) {
         debug('Client', 'init config', config);

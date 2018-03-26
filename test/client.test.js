@@ -85,9 +85,10 @@ describe('Client', () => {
     });
 
     it('Has discovery error if getting host failed', async () => {
+        const DISCOVERY_ERROR_MESSAGE = 'discovery failed';
         const discovery = {
             getHosts: () => {
-                return Promise.reject();
+                return Promise.reject(new Error(DISCOVERY_ERROR_MESSAGE));
             }
         };
         const client = new Client({ discovery });
@@ -98,6 +99,6 @@ describe('Client', () => {
             err = e;
         }
 
-        expect(err).toBeInstanceOf(DiscoveryError);
+        expect(err.message).toMatch(new RegExp(DISCOVERY_ERROR_MESSAGE));
     })
 });

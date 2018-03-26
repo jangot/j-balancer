@@ -52,6 +52,10 @@ module.exports = class Discovery {
                 .then((hosts) => {
                     debug('Discovery', 'resolve hosts', hosts);
                     this.hosts = hosts;
+                })
+                .catch((err) => {
+                    debug('Discovery', 'reject hosts', err);
+                    throw new Error('Getting hosts failed');
                 });
         }
 

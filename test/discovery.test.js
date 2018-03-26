@@ -165,8 +165,6 @@ describe('Discovery', () => {
             }
         });
 
-
-
         let err;
         try {
             const discovery = new Discovery(config);
@@ -176,6 +174,26 @@ describe('Discovery', () => {
         }
 
         expect(err.message).toMatch(/Getting unavailable service/);
+    });
 
+    it('Throw error if config without required params', async () => {
+        const config = Object.assign({}, testConfig, {
+            retries: 1,
+            resolver: {
+                get: () => {
+                    return Promise.reject();
+                }
+            }
+        });
+
+        let err;
+        try {
+            const discovery = new Discovery(config);
+            await discovery.getHosts('SERVICE');
+        } catch (e) {
+            err = e;
+        }
+
+        expect(err.message).toMatch(/Getting hosts failed/);
     });
 });

@@ -1,7 +1,6 @@
 const axios = require('axios');
 const clone = require('lodash/clone');
 const debug = require('./debug');
-const DiscoveryError = require('./discoveryError');
 
 const DEFAULT_CONFIG = {
     discovery: null,

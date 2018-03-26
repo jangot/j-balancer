@@ -41,7 +41,7 @@ module.exports = function getClient(settings) {
         ...settings.client
     };
 
-    if (!defaultConfig.hosts) {
+    if (!discoveryConfig.hosts) {
         throw Error('"discovery.hosts" is required params')
     }
     const discovery = new Discovery({

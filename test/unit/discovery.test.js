@@ -1,4 +1,4 @@
-const Discovery = require('../src/discovery');
+const Discovery = require('../../src/discovery');
 
 const testConfig = {
     resolver: { get:() => {

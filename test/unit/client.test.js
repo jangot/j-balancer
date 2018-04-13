@@ -1,6 +1,6 @@
 const axios = require('axios');
 const MockAdapter = require('axios-mock-adapter');
-const Client = require('../src/client');
+const Client = require('../../src/client');
 
 const mock = new MockAdapter(axios);
 

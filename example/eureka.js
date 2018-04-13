@@ -16,8 +16,18 @@ const defaultConfig = {
         }
     },
     client: {}
-
 };
+
+// discovery: {
+//     url: 'apps/',
+//         hosts: EUREKA_HOSTS.split(','),
+//         retries: 3,
+//         expired: 10000
+// },
+// client: {
+//     retries: 3,
+//         expired: 10000
+// }
 
 function getResolverForDiscovery(config) {
     const discoveryForEurekaClient = getDiscoveryForEurekaClient(config.hosts);
@@ -32,25 +42,15 @@ function getResolverForDiscovery(config) {
 }
 
 module.exports = function getClient(settings) {
-    const discoveryConfig = {
-        ...defaultConfig.discovery,
-        ...settings.discovery
-    };
-    const clientConfig = {
-        ...defaultConfig.client,
-        ...settings.client
-    };
+    const discoveryConfig = Object.assign({}, defaultConfig.discovery, settings.discovery);
 
     if (!discoveryConfig.hosts) {
         throw Error('"discovery.hosts" is required params')
     }
-    const discovery = new Discovery({
-        ...discoveryConfig,
-        resolver: getResolverForDiscovery(discoveryConfig)
-    });
 
-    return new Client({
-        ...clientConfig,
-        discovery
-    });
+    const resolver = getResolverForDiscovery(discoveryConfig);
+    const discovery = new Discovery(Object.assign({ resolver }, discoveryConfig));
+    const clientConfig = Object.assign({ discovery }, defaultConfig.client, settings.client);
+
+    return new Client(clientConfig);
 };

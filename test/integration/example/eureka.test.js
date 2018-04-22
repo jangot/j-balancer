@@ -67,7 +67,7 @@ describe('Eureka client', () => {
     });
 
     it('Will get correct answer from application', async () => {
-        const EUREKA_HOST = 'some-host.com';
+        const EUREKA_HOST = 'http://eureka-host.com';
         const EUREKA_URL = '/app/path';
 
         const APP_NAME = 'MY_APP';
@@ -98,7 +98,7 @@ describe('Eureka client', () => {
     });
 
     it('Will get correct answer from second app if first app rejected', async () => {
-        const EUREKA_HOST = 'some-host.com';
+        const EUREKA_HOST = 'http://eureka-host.com';
         const EUREKA_URL = '/app/path';
 
         const APP_NAME = 'MY_APP';
@@ -145,7 +145,7 @@ describe('Eureka client', () => {
     });
 
     it('Will get correct answer after expired', async () => {
-        const EUREKA_HOST = 'some-host.com';
+        const EUREKA_HOST = 'http://eureka-host.com';
         const EUREKA_URL = '/app/path';
 
         const APP_NAME = 'MY_APP';
@@ -190,7 +190,7 @@ describe('Eureka client', () => {
     });
 
     it('Will error if eureka rejected', async () => {
-        const EUREKA_HOST = 'some-host.com';
+        const EUREKA_HOST = 'http://eureka-host.com';
         const EUREKA_URL = '/app/path';
         const APP_NAME = 'MY_APP';
         const APP_PATH = '/app/path';
@@ -211,10 +211,9 @@ describe('Eureka client', () => {
         }
     });
 
-    // NOT WORKING
-    it.only('Will get correct answer after rejected first eureka', async () => {
-        const EUREKA_HOST_1 = 'some-host-1.com';
-        const EUREKA_HOST_2 = 'some-host-2.com';
+    it('Will get correct answer after rejected first eureka', async () => {
+        const EUREKA_HOST_1 = 'http://eureka-host-1.com';
+        const EUREKA_HOST_2 = 'http://eureka-host-2.com';
         const EUREKA_URL = '/app/path';
 
         const APP_NAME = 'MY_APP';
@@ -223,7 +222,7 @@ describe('Eureka client', () => {
         const APP_PATH = '/app/path';
         const eurekaAnswer = getApplicationData(getOneApplication(APP_NAME, APP_HOST, APP_PORT));
 
-        mock.onGet(EUREKA_HOST_1 + EUREKA_URL).replyOnce(500, { error: 'some error' });
+        mock.onGet(EUREKA_HOST_1 + EUREKA_URL).reply(503, eurekaAnswer);
         mock.onGet(EUREKA_HOST_2 + EUREKA_URL).reply(200, eurekaAnswer);
         mock.onGet(`http://${APP_HOST}:${APP_PORT}${APP_PATH}`).reply(200, { hello: 'world' });
 
@@ -245,5 +244,3 @@ describe('Eureka client', () => {
         expect(result).toEqual({ hello: 'world' });
     });
 });
-
-

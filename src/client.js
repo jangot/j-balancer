@@ -8,8 +8,8 @@ const DEFAULT_CONFIG = {
 };
 
 const noopInterceptor = [
-    (data) => data,
-    (error) => Promise.reject(error)
+    function noopOkInterceprot (data) { return data },
+    function noopFailInterceprot (error) { return Promise.reject(error) }
 ];
 
 
@@ -24,22 +24,20 @@ module.exports = class Client {
     }
     getService(name) {
         debug('Client', 'get service', name);
-        let instance = axios.create();
+        let axiosInstance = axios.create();
 
         this.interceptors.forEach((interceptor) => {
-            interceptor = interceptor.request;
-            instance.interceptors.request.use(interceptor[0], interceptor[1]);
+            axiosInstance.interceptors.request.use(interceptor.request[0], interceptor.request[1]);
         });
 
-        instance.interceptors.request.use((config) => this._updateRequestConfig(config, name), (error) => Promise.reject(error));
-        instance.interceptors.response.use((response) => response, (error) => this._updateResponseError(error, instance));
+        axiosInstance.interceptors.request.use((config) => this._updateRequestConfig(config, name), (error) => Promise.reject(error));
+        axiosInstance.interceptors.response.use((response) => response, (error) => this._updateResponseError(error, axiosInstance));
 
         this.interceptors.forEach((interceptor) => {
-            interceptor = interceptor.response;
-            instance.interceptors.response.use(interceptor[0], interceptor[1]);
+            axiosInstance.interceptors.response.use(interceptor.response[0], interceptor.response[1]);
         });
 
-        return instance;
+        return axiosInstance;
     }
 
     use(interceptor) {
@@ -63,6 +61,7 @@ module.exports = class Client {
 
             return config;
         }
+
         return this.config.discovery
             .getHosts(name)
             .then((hosts = []) => {
@@ -76,7 +75,6 @@ module.exports = class Client {
                     hosts
                 };
                 config.url = config.discovery.hosts.shift() + originUrl;
-
                 return config;
             });
     }

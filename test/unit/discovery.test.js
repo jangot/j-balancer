@@ -85,7 +85,6 @@ describe('Discovery', () => {
     });
 
     it('getHosts calls resolver twice if update expired', async () => {
-        console.log(`(((((((((((((((((((((((((((((((((((((((`);
         const SERVICE_NAME = 'some-service';
         const SERVICE_HOST = 'some-service.com';
 

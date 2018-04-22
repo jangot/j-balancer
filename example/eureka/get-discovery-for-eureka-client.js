@@ -1,7 +1,7 @@
 
 module.exports = function (hosts) {
     return {
-        getHosts: () => {
+        getHosts: (name) => {
             return Promise.resolve([...hosts])
         }
     };

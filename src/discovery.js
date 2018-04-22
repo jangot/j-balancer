@@ -64,7 +64,7 @@ module.exports = class Discovery {
 
     getLoadedHosts(name) {
         if (!this.hosts[name]) {
-            throw new Error('Discovery: Getting unavailable service')
+            throw new Error(`Discovery: Getting unavailable service ${name}`)
         }
 
         const result = this.getCorrectCountHosts(this.hosts[name]);

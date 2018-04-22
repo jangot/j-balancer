@@ -20,13 +20,13 @@ const defaultConfig = {
 
 // discovery: {
 //     url: 'apps/',
-//         hosts: EUREKA_HOSTS.split(','),
-//         retries: 3,
-//         expired: 10000
+//     hosts: EUREKA_HOSTS.split(','),
+//     retries: 3,
+//     expired: 10000
 // },
 // client: {
 //     retries: 3,
-//         expired: 10000
+//     expired: 10000
 // }
 
 function getResolverForDiscovery(config) {
@@ -38,7 +38,7 @@ function getResolverForDiscovery(config) {
 
     discoveryResolver.use(discoveryClientInterceptors);
 
-    return discoveryResolver.getService('eureks');
+    return discoveryResolver.getService('eureka');
 }
 
 module.exports = function getClient(settings) {

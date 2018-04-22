@@ -2,24 +2,36 @@ const get = require('lodash/get');
 
 function getRequestInterceptor() {
     return [
-        (config) => {
+        function okRequesInterceptor(config) {
             config.headers['Accept'] = 'application/json';
+
             return config;
         },
-        (error) => Promise.reject(error)
+        function failRequesInterceptor(error) {
+            return Promise.reject(error);
+        }
     ]
 }
 
+
 function getResponseInterceptor(applicationsMap) {
     return [
-        (data) => {
+        function onResponce(data) {
+            // There is a problem:
+            // This interceptor calls twonce, I do`t know what is it.
+            // Need additional checking
+            if (!data.status) {
+                return data;
+            }
             const applications = get(data, 'data.applications.application', []);
             return applications.reduce((result, item) => {
                 result[item.name] = item.instance.map(applicationsMap);
                 return result;
             }, {});
         },
-        (error) => Promise.reject(error)
+        function failResponce(error) {
+            return Promise.reject(error);
+        }
     ];
 }
 

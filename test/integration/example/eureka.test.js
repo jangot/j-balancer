@@ -168,7 +168,7 @@ describe('Eureka client', () => {
             discovery: {
                 hosts: [EUREKA_HOST],
                 url: EUREKA_URL,
-                expired: 100
+                expired: 50
             }
         }).getService(APP_NAME);
 
@@ -178,7 +178,7 @@ describe('Eureka client', () => {
                 url: APP_PATH
             });
 
-        await timeout(110);
+        await timeout(55);
 
         const result = await service
             .request({
@@ -222,7 +222,7 @@ describe('Eureka client', () => {
         const APP_PATH = '/app/path';
         const eurekaAnswer = getApplicationData(getOneApplication(APP_NAME, APP_HOST, APP_PORT));
 
-        mock.onGet(EUREKA_HOST_1 + EUREKA_URL).reply(503, eurekaAnswer);
+        mock.onGet(EUREKA_HOST_1 + EUREKA_URL).reply(503, { message: 'some error' });
         mock.onGet(EUREKA_HOST_2 + EUREKA_URL).reply(200, eurekaAnswer);
         mock.onGet(`http://${APP_HOST}:${APP_PORT}${APP_PATH}`).reply(200, { hello: 'world' });
 
@@ -230,6 +230,95 @@ describe('Eureka client', () => {
             discovery: {
                 hosts: [EUREKA_HOST_1, EUREKA_HOST_2],
                 url: EUREKA_URL
+            }
+        });
+
+        const result = await client
+            .getService(APP_NAME)
+            .request({
+                method: 'GET',
+                url: APP_PATH
+            })
+            .then(res => res.data);
+
+        expect(result).toEqual({ hello: 'world' });
+    });
+
+    it('Will get correct answer after rejected first and second eureks', async () => {
+        const EUREKA_HOST_1 = 'http://eureka-host-1.com';
+        const EUREKA_HOST_2 = 'http://eureka-host-2.com';
+        const EUREKA_HOST_3 = 'http://eureka-host-3.com';
+        const EUREKA_URL = '/app/path';
+
+        const APP_NAME = 'MY_APP';
+        const APP_HOST = 'my-app-host.com';
+        const APP_PORT = 9999;
+        const APP_PATH = '/app/path';
+        const eurekaAnswer = getApplicationData(getOneApplication(APP_NAME, APP_HOST, APP_PORT));
+
+        mock.onGet(EUREKA_HOST_1 + EUREKA_URL).reply(503, { message: 'some error' });
+        mock.onGet(EUREKA_HOST_2 + EUREKA_URL).reply(500, { message: 'some error' });
+        mock.onGet(EUREKA_HOST_3 + EUREKA_URL).reply(200, eurekaAnswer);
+        mock.onGet(`http://${APP_HOST}:${APP_PORT}${APP_PATH}`).reply(200, { hello: 'world' });
+
+        const client = getEurekaClient({
+            discovery: {
+                hosts: [EUREKA_HOST_1, EUREKA_HOST_2, EUREKA_HOST_3],
+                url: EUREKA_URL
+            }
+        });
+
+        const result = await client
+            .getService(APP_NAME)
+            .request({
+                method: 'GET',
+                url: APP_PATH
+            })
+            .then(res => res.data);
+
+        expect(result).toEqual({ hello: 'world' });
+    });
+
+    it('Will update hosts if all requests failed', async () => {
+        const EUREKA_HOST = 'http://eureka-host.com';
+        const EUREKA_URL = '/app/path';
+
+        const APP_NAME = 'MY_APP';
+        const APP_HOST_1 = 'my-app-host1.com';
+        const APP_HOST_2 = 'my-app-host2.com';
+        const APP_HOST_3 = 'my-app-host3.com';
+        const APP_PORT = 9999;
+        const APP_PATH = '/app/path';
+        const eurekaAnswer1 = getApplicationData(getApplications(APP_NAME, [
+            {
+                host: APP_HOST_1,
+                port: APP_PORT
+            },
+            {
+                host: APP_HOST_2,
+                port: APP_PORT
+            }
+        ]));
+        const eurekaAnswer2 = getApplicationData(getApplications(APP_NAME, [
+            {
+                host: APP_HOST_3,
+                port: APP_PORT
+            }
+        ]));
+
+        mock.onGet(EUREKA_HOST + EUREKA_URL).replyOnce(200, eurekaAnswer1);
+        mock.onGet(EUREKA_HOST + EUREKA_URL).replyOnce(200, eurekaAnswer2);
+        mock.onGet(`http://${APP_HOST_1}:${APP_PORT}${APP_PATH}`).reply(503, { message: 'some error' });
+        mock.onGet(`http://${APP_HOST_2}:${APP_PORT}${APP_PATH}`).reply(503, { message: 'some error' });
+        mock.onGet(`http://${APP_HOST_3}:${APP_PORT}${APP_PATH}`).reply(200, { hello: 'world' });
+
+        const client = getEurekaClient({
+            discovery: {
+                hosts: [EUREKA_HOST],
+                url: EUREKA_URL
+            },
+            client: {
+                updateHostsAfterFailRequest: true
             }
         });
 

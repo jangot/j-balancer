@@ -23,6 +23,8 @@ function getClient(...args) {
 
 const HOST1 = 'http://some-service-1.ru';
 const HOST2 = 'http://some-service-2.ru';
+const HOST3 = 'http://some-service-3.ru';
+const HOST4 = 'http://some-service-4.ru';
 describe('Client', () => {
     afterEach(function () {
         mock.reset();
@@ -99,5 +101,25 @@ describe('Client', () => {
         }
 
         expect(err.message).toMatch(new RegExp(DISCOVERY_ERROR_MESSAGE));
-    })
+    });
+
+    it('Expire discovery if all requests faled', async () => {
+      mock.onGet(HOST1 + '/').reply(503, { message: 'some  error' });
+      mock.onGet(HOST2 + '/').reply(503, { message: 'some error' });
+      mock.onGet(HOST3 + '/').reply(200, { value: 'first' });
+
+      const discovery = {
+          currentHosts: [HOST1, HOST2],
+          getHosts: function() {
+              return Promise.resolve([...this.currentHosts]);
+          },
+          expireForce: function () {
+              this.currentHosts = [HOST3, HOST4]
+          }
+      };
+      const client = new Client({ discovery, updateHostsAfterFailRequest: true });
+
+      const result = await client.getService('some-service').get('/');
+      expect(result.data.value).toBe('first');
+    });
 });

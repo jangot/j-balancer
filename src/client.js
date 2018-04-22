@@ -4,6 +4,7 @@ const debug = require('./debug');
 
 const DEFAULT_CONFIG = {
     discovery: null,
+    updateHostsAfterFailRequest: false,
     needRetry: () => true
 };
 
@@ -85,6 +86,17 @@ module.exports = class Client {
 
         if (config.discovery && config.discovery.hosts.length > 0 && this.config.needRetry(error)) {
             config.url = config.discovery.originUrl;
+
+            return instance(config);
+        }
+
+        // Try to expire hosts after fail requests
+        if (this.config.updateHostsAfterFailRequest && !config.descoveryUpdated && this.config.discovery.expireForce) {
+            this.config.discovery.expireForce();
+            config.url = config.discovery.originUrl;
+
+            delete config.discovery;
+            config.descoveryUpdated = true;
 
             return instance(config);
         }

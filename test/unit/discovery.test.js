@@ -196,4 +196,32 @@ describe('Discovery', () => {
 
         expect(err.message).toMatch(/Getting hosts failed/);
     });
+
+    it('It will not wait if call `expireForce` method', async () => {
+        const SERVICE_NAME = 'some-service';
+        const SERVICE_HOST_1 = 'some-service1.com';
+        const SERVICE_HOST_2 = 'some-service2.com';
+
+        const resolverList = [
+            { [SERVICE_NAME]: [ SERVICE_HOST_1 ] },
+            { [SERVICE_NAME]: [ SERVICE_HOST_2 ] }
+        ];
+
+        const config = Object.assign({}, testConfig, {
+            expired: 10000,
+            resolver: {
+                get: () => {
+                    const result = resolverList.shift();
+                    return Promise.resolve(result);
+                }
+            }
+        });
+        const discovery = new Discovery(config);
+        await discovery.getHosts(SERVICE_NAME);
+        discovery.expireForce();
+
+        const result = await discovery.getHosts(SERVICE_NAME);
+
+        expect(result[0]).toEqual(SERVICE_HOST_2);
+    });
 });

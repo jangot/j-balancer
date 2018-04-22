@@ -32,6 +32,10 @@ module.exports = class Discovery {
             });
     }
 
+    expireForce() {
+        this.resolverResult = null;
+    }
+
     initConfig(config) {
         this.config = Object.assign({}, DEFAULT_CONFIG, config);
 
@@ -44,7 +48,7 @@ module.exports = class Discovery {
     }
 
     loadingHostsIfExpired() {
-        if (this.isExpired() || !this.resolverResult) {
+        if (!this.resolverResult || this.isExpired()) {
             debug('Discovery', 'hosts expired');
             this.lasUpdate = Date.now();
             this.resolverResult = this.config.resolver

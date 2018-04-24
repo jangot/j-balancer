@@ -115,9 +115,7 @@ module.exports = class Client {
     }
 
     _isNeedExpireForce(requestConfig, error) {
-        const response = error.response || {};
-        return response.status >= 500
-            && this.config.updateHostsAfterFailRequest
+        return this.config.updateHostsAfterFailRequest
             && !requestConfig.descoveryUpdated
             && this.config.discovery.expireForce;
     }

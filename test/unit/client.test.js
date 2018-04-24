@@ -124,27 +124,28 @@ describe('Client', () => {
     });
 
     it('Without expire discovery if all requests faled with error less 500', async () => {
-      mock.onGet(HOST1 + '/').reply(404, { message: 'some  error' });
-      mock.onGet(HOST3 + '/').reply(200, { value: 'first' });
+        // not actual
+        mock.onGet(HOST1 + '/').reply(404, { message: 'some  error' });
+        mock.onGet(HOST3 + '/').reply(404, { value: 'first' });
 
-      const discovery = {
-          currentHosts: [HOST1, HOST2],
-          getHosts: function() {
+        const discovery = {
+            currentHosts: [HOST1, HOST2],
+            getHosts: function() {
               return Promise.resolve([...this.currentHosts]);
-          },
-          expireForce: function () {
+            },
+            expireForce: function () {
               this.currentHosts = [HOST3, HOST4]
-          }
-      };
-      const client = new Client({ discovery, updateHostsAfterFailRequest: true });
+            }
+        };
+        const client = new Client({ discovery, updateHostsAfterFailRequest: true });
 
-      let err;
-      try {
+        let err;
+        try {
           await client.getService('some-service').get('/');
-      } catch (e) {
+        } catch (e) {
           err = e;
-      }
+        }
 
-      expect(err.message).toMatch(new RegExp('status code 404'));
+        expect(err.message).toMatch(new RegExp('status code 404'));
     });
 });

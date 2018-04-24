@@ -6,7 +6,8 @@ const DEFAULT_CONFIG = {
     discovery: null,
     updateHostsAfterFailRequest: false,
     needRetry: () => true,
-    logger: () => {}
+    logger: () => {},
+    retryTimeout: 100
 };
 
 const noopInterceptor = [
@@ -14,6 +15,11 @@ const noopInterceptor = [
     function noopFailInterceprot (error) { return Promise.reject(error) }
 ];
 
+function timeout(time = 0) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, time)
+    });
+}
 
 module.exports = class Client {
     constructor(config) {
@@ -108,7 +114,10 @@ module.exports = class Client {
             delete config.discovery;
             config.descoveryUpdated = true;
 
-            return instance(config);
+            return timeout(this.config.retryTimeout)
+                .then(() => {
+                    return instance(config);
+                });
         }
 
         return Promise.reject(error);

@@ -104,7 +104,7 @@ describe('Client', () => {
     });
 
     it('Expire discovery if all requests faled with error 500+', async () => {
-      mock.onGet(HOST1 + '/').reply(500, { message: 'some  error' });
+      mock.onGet(HOST1 + '/').reply(404, { message: 'some  error' });
       mock.onGet(HOST2 + '/').reply(503, { message: 'some error' });
       mock.onGet(HOST3 + '/').reply(200, { value: 'first' });
 

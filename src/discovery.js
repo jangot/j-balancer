@@ -104,7 +104,9 @@ module.exports = class Discovery {
     }
 
     _log(params = {}) {
-        const log = Object.assign({ level: 'discovery' }, params);
+        const log = Object.assign({
+            balancerLevel: 'DISCOVERY'
+        }, params);
 
         this.config.logger(log);
         debug('DISCOVERY', log);

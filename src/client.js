@@ -130,7 +130,7 @@ module.exports = class Client {
     }
 
     _log(params = {}) {
-        const log = Object.assign({ level: 'client' }, params);
+        const log = Object.assign({ balancerLevel: 'CLIENT' }, params);
 
         this.config.logger(log);
         debug('CLIENT', log);

@@ -13,9 +13,12 @@ const defaultConfig = {
         expired: 60000,
         applicationsMap: (application) => {
             return `http://${application.hostName}:${application.port.$}`;
-        }
+        },
+        logger: () => {}
     },
-    client: {}
+    client: {
+        logger: () => {}
+    }
 };
 
 // discovery: {

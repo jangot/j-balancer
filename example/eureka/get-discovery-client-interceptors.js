@@ -24,10 +24,19 @@ function getResponseInterceptor(applicationsMap) {
                 return data;
             }
             const applications = get(data, 'data.applications.application', []);
-            return applications.reduce((result, item) => {
-                result[item.name] = item.instance.map(applicationsMap);
-                return result;
-            }, {});
+            return applications
+                .reduce((result, item) => {
+                    result[item.name] = item.instance
+                        // TODO need write tests for sorting
+                        .sort((a, b) => {
+                            const aLastUpdatedTimestamp = Number(a.lastUpdatedTimestamp);
+                            const bLastUpdatedTimestamp = Number(b.lastUpdatedTimestamp);
+
+                            return aLastUpdatedTimestamp - bLastUpdatedTimestamp;
+                        })
+                        .map(applicationsMap);
+                    return result;
+                }, {});
         },
         function failResponce(error) {
             return Promise.reject(error);

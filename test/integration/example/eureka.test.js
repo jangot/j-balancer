@@ -33,7 +33,8 @@ function getApplications(name, instances = []) {
             hostName: inst.host,
             port: {
                 $: inst.port
-            }
+            },
+            lastUpdatedTimestamp: '1123123'
         })
     }
 

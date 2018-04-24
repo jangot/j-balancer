@@ -91,7 +91,7 @@ module.exports = class Client {
         }
 
         // Try to expire hosts after fail requests
-        if (this.config.updateHostsAfterFailRequest && !config.descoveryUpdated && this.config.discovery.expireForce) {
+        if (this.isNeedExpireForce(config, error)) {
             this.config.discovery.expireForce();
             config.url = config.discovery.originUrl;
 
@@ -102,5 +102,13 @@ module.exports = class Client {
         }
 
         return Promise.reject(error);
+    }
+
+    isNeedExpireForce(requestConfig, error) {
+        const response = error.response || {};
+        return response.status >= 500
+            && this.config.updateHostsAfterFailRequest
+            && !requestConfig.descoveryUpdated
+            && this.config.discovery.expireForce;
     }
 };

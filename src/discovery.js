@@ -17,7 +17,7 @@ module.exports = class Discovery {
         this.resolverResult = null;
         this.lasUpdate = null;
 
-        this.initConfig(config);
+        this._initConfig(config);
     }
 
     getHosts(name) {
@@ -26,9 +26,9 @@ module.exports = class Discovery {
         }
 
         return this
-            .loadingHostsIfExpired()
+            ._loadingHostsIfExpired()
             .then(() => {
-                return this.getLoadedHosts(name);
+                return this._getLoadedHosts(name);
             });
     }
 
@@ -36,7 +36,7 @@ module.exports = class Discovery {
         this.resolverResult = null;
     }
 
-    initConfig(config) {
+    _initConfig(config) {
         this.config = Object.assign({}, DEFAULT_CONFIG, config);
 
         debug('Discovery', 'init', this.config);
@@ -47,8 +47,8 @@ module.exports = class Discovery {
         return this;
     }
 
-    loadingHostsIfExpired() {
-        if (!this.resolverResult || this.isExpired()) {
+    _loadingHostsIfExpired() {
+        if (!this.resolverResult || this._isExpired()) {
             debug('Discovery', 'hosts expired');
             this.lasUpdate = Date.now();
             this.resolverResult = this.config.resolver
@@ -66,25 +66,25 @@ module.exports = class Discovery {
         return this.resolverResult;
     }
 
-    getLoadedHosts(name) {
+    _getLoadedHosts(name) {
         if (!this.hosts[name]) {
             throw new Error(`Discovery: Getting unavailable service ${name}`)
         }
 
-        const result = this.getCorrectCountHosts(this.hosts[name]);
-        this.hosts[name] = this.moveFirstToEnd(this.hosts[name]);
+        const result = this._getCorrectCountHosts(this.hosts[name]);
+        this.hosts[name] = this._moveFirstToEnd(this.hosts[name]);
 
         return result;
     }
 
-    moveFirstToEnd(array) {
+    _moveFirstToEnd(array) {
         const first = array.shift();
         array.push(first);
 
         return array;
     }
 
-    getCorrectCountHosts(hosts) {
+    _getCorrectCountHosts(hosts) {
         let count = this.config.retries;
         if (count > hosts.length) {
             count = hosts.length;
@@ -93,7 +93,7 @@ module.exports = class Discovery {
         return hosts.slice(0, count);
     }
 
-    isExpired() {
+    _isExpired() {
         const now = Date.now();
 
         return (now - this.lasUpdate) >= this.config.expired;

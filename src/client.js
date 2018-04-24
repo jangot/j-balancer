@@ -5,7 +5,8 @@ const debug = require('./debug');
 const DEFAULT_CONFIG = {
     discovery: null,
     updateHostsAfterFailRequest: false,
-    needRetry: () => true
+    needRetry: () => true,
+    logger: () => {}
 };
 
 const noopInterceptor = [
@@ -16,15 +17,17 @@ const noopInterceptor = [
 
 module.exports = class Client {
     constructor(config) {
-        debug('Client', 'init config', config);
         this.config = Object.assign({}, DEFAULT_CONFIG, config);
         if (!this.config.discovery) {
+            this._log({ message: 'init service: Discovery getter is empty', config });
             throw Error('Client: Discovery getter is empty');
         }
+
+        this._log({ message: 'init client', config });
         this.interceptors = [];
     }
     getService(name) {
-        debug('Client', 'get service', name);
+        this._log({ message: `get service: ${name}`});
         let axiosInstance = axios.create();
 
         this.interceptors.forEach((interceptor) => {
@@ -55,7 +58,11 @@ module.exports = class Client {
     }
 
     _updateRequestConfig(config, name) {
-        debug('Client', 'update request config', config, name);
+        if (!config.requestId) {
+            config.requestId = 'requestId' + Date.now();
+        }
+
+        this._log({ message: `will request to ${name}`, config, requestId: config.requestId });
         if (config.discovery) {
             config.discovery.originUrl = config.url;
             config.url = config.discovery.hosts.shift() + config.discovery.originUrl;
@@ -66,7 +73,7 @@ module.exports = class Client {
         return this.config.discovery
             .getHosts(name)
             .then((hosts = []) => {
-                debug('Client', 'discovery returns hosts', hosts);
+                this._log({ message: 'resolve hosts', hosts, requestId: config.requestId });
                 if (hosts.length === 0) {
                     throw new Error(`Client: There are't servers ${name}`);
                 }
@@ -81,17 +88,20 @@ module.exports = class Client {
     }
 
     _updateResponseError(error, instance) {
-        debug('Client', 'update response error', error);
         const { config = {} } = error;
+        this._log({ message: 'Got request error', error: error.message, requestId: config.requestId});
 
         if (config.discovery && config.discovery.hosts.length > 0 && this.config.needRetry(error)) {
             config.url = config.discovery.originUrl;
+
+            this._log({ message: 'Retry request', requestId: config.requestId});
 
             return instance(config);
         }
 
         // Try to expire hosts after fail requests
-        if (this.isNeedExpireForce(config, error)) {
+        if (this._isNeedExpireForce(config, error)) {
+            this._log({ message: 'Try expire hosts', requestId: config.requestId});
             this.config.discovery.expireForce();
             config.url = config.discovery.originUrl;
 
@@ -104,11 +114,18 @@ module.exports = class Client {
         return Promise.reject(error);
     }
 
-    isNeedExpireForce(requestConfig, error) {
+    _isNeedExpireForce(requestConfig, error) {
         const response = error.response || {};
         return response.status >= 500
             && this.config.updateHostsAfterFailRequest
             && !requestConfig.descoveryUpdated
             && this.config.discovery.expireForce;
+    }
+
+    _log(params = {}) {
+        const log = Object.assign({ level: 'client' }, params);
+
+        this.config.logger(log);
+        debug('CLIENT', log);
     }
 };

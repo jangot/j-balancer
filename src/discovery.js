@@ -5,7 +5,8 @@ const DEFAULT_CONFIG = {
     resolver: null,
     url: '/',
     expired: 60000,
-    retries: 3
+    retries: 3,
+    logger: () => {}
 };
 
 module.exports = class Discovery {
@@ -22,6 +23,7 @@ module.exports = class Discovery {
 
     getHosts(name) {
         if (!name) {
+            this._log({ message: 'Getting service without name'});
             throw new Error('Discovery: Getting service without name');
         }
 
@@ -39,26 +41,27 @@ module.exports = class Discovery {
     _initConfig(config) {
         this.config = Object.assign({}, DEFAULT_CONFIG, config);
 
-        debug('Discovery', 'init', this.config);
         if (!this.config.resolver) {
+            this._log({ message: 'Resolver was not set', config });
             throw Error('Discovery: Resolver was not set');
         }
 
+        this._log({ message: 'init discovery', config });
         return this;
     }
 
     _loadingHostsIfExpired() {
         if (!this.resolverResult || this._isExpired()) {
-            debug('Discovery', 'hosts expired');
+            this._log({ message: 'hosts expired'});
             this.lasUpdate = Date.now();
             this.resolverResult = this.config.resolver
                 .get(this.config.url)
                 .then((hosts) => {
-                    debug('Discovery', 'resolve hosts', hosts);
+                    this._log({ message: 'resolve hosts', hosts});
                     this.hosts = hosts;
                 })
                 .catch((err) => {
-                    debug('Discovery', 'reject hosts', err);
+                    this._log({ message: 'reject hosts', err});
                     throw new Error('Getting hosts failed');
                 });
         }
@@ -68,6 +71,7 @@ module.exports = class Discovery {
 
     _getLoadedHosts(name) {
         if (!this.hosts[name]) {
+            this._log({ message: 'Getting unavailable service', name});
             throw new Error(`Discovery: Getting unavailable service ${name}`)
         }
 
@@ -97,5 +101,12 @@ module.exports = class Discovery {
         const now = Date.now();
 
         return (now - this.lasUpdate) >= this.config.expired;
+    }
+
+    _log(params = {}) {
+        const log = Object.assign({ level: 'discovery' }, params);
+
+        this.config.logger(log);
+        debug('DISCOVERY', log);
     }
 };

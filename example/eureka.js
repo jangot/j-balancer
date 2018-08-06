@@ -35,7 +35,8 @@ const defaultConfig = {
 function getResolverForDiscovery(config) {
     const discoveryForEurekaClient = getDiscoveryForEurekaClient(config.hosts);
     const discoveryResolver = new Client({
-        discovery: discoveryForEurekaClient
+        discovery: discoveryForEurekaClient,
+        logPrefix: 'DISCOVERY CLIENT'
     });
     const discoveryClientInterceptors = getDiscoveryClientInterceptors(config.applicationsMap);
 

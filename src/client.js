@@ -7,7 +7,8 @@ const DEFAULT_CONFIG = {
     updateHostsAfterFailRequest: false,
     needRetry: () => true,
     logger: () => {},
-    retryTimeout: 100
+    retryTimeout: 100,
+    logPrefix: 'CLIENT'
 };
 
 const noopInterceptor = [
@@ -89,6 +90,7 @@ module.exports = class Client {
                     hosts
                 };
                 config.url = config.discovery.hosts.shift() + originUrl;
+                this._log({ message: 'Try request', url: config.url});
                 return config;
             });
     }
@@ -133,6 +135,6 @@ module.exports = class Client {
         const log = Object.assign({ balancerLevel: 'CLIENT' }, params);
 
         this.config.logger(log);
-        debug('CLIENT', log);
+        debug(this.config.logPrefix, log);
     }
 };
